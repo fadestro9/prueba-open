@@ -1,7 +1,17 @@
-FROM node:16 as build
+# Etapa de build
+FROM node:16 AS build
 WORKDIR /app
+
+# Copia solo archivos necesarios primero para aprovechar caché
+COPY package*.json ./
+
+# Esto asegura que package.json está en /app
+RUN npm install
+
+# Ahora copia el resto del código fuente
 COPY . .
-RUN npm install && npm run build
+
+RUN npm run build
 
 FROM nginx:alpine
 COPY --from=build /app/build /usr/share/nginx/html
